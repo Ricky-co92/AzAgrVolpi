@@ -8,7 +8,14 @@ function persist(promiseBuilder){
 }
 
 /* ================= utilità ================= */
-const uid = () => crypto.randomUUID();
+const uid = () => {
+  if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  // fallback per contesti non sicuri (http) dove crypto.randomUUID non esiste
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+    const r = Math.random()*16|0;
+    return (c==='x' ? r : (r&0x3|0x8)).toString(16);
+  });
+};
 const todayStr = () => new Date().toISOString().slice(0,10);
 const fmtDate = d => d ? new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}) : '&mdash;';
 const daysUntil = d => { if(!d) return null; return Math.ceil((new Date(d) - new Date(todayStr()))/86400000); };
