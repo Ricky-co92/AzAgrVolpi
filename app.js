@@ -394,7 +394,7 @@ function mezzoDetail(v){
   return `
   ${v.foto ? `<img src="${v.foto}" style="width:100%; max-height:280px; object-fit:contain; display:block; background:var(--line-soft);">` : ''}
   <div class="detail">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding-right:40px;">
       <h2>${v.nome}</h2>
       <button class="btn-icon ${mezzoSettingsOpen ? 'active' : ''}" data-action="toggle-mezzo-settings" title="Impostazioni mezzo">&#9881;</button>
     </div>
@@ -464,7 +464,7 @@ function attrDetail(a){
   return `
   ${a.foto ? `<img src="${a.foto}" style="width:100%; max-height:280px; object-fit:contain; display:block; background:var(--line-soft);">` : ''}
   <div class="detail">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding-right:40px;">
       <h2>${a.nome}</h2>
       <button class="btn-icon ${attrSettingsOpen ? 'active' : ''}" data-action="toggle-attr-settings" title="Impostazioni attrezzatura">&#9881;</button>
     </div>
