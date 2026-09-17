@@ -785,14 +785,16 @@ function attachHandlers(){
 }
 
 /* ================= avvio / login ================= */
-function initSplash(){
+async function showSplashThenRender(loadFn){
   const splash = document.getElementById('splash');
-  const logo = splash ? splash.querySelector('.splash-logo') : null;
-  if(splash){
-    if(logo){ logo.classList.remove('grow'); void logo.offsetWidth; logo.classList.add('grow'); }
-    setTimeout(()=>splash.classList.add('hide'), 3000);
-    splash.onclick = ()=>splash.classList.add('hide');
-  }
+  const logo = splash.querySelector('.splash-logo');
+  splash.classList.remove('hide');
+  logo.classList.remove('grow');
+  requestAnimationFrame(()=>{ logo.classList.add('grow'); });
+  const minWait = new Promise(res=>setTimeout(res, 3000));
+  await Promise.all([ loadFn(), minWait ]);
+  render();
+  splash.classList.add('hide');
 }
 
 document.getElementById('loginForm').addEventListener('submit', async (e)=>{
@@ -803,10 +805,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e)=>{
   const { error } = await sb.auth.signInWithPassword({ email: f.get('email'), password: f.get('password') });
   if(error){ errEl.textContent = 'Credenziali non valide.'; errEl.style.display = 'block'; return; }
   document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('splash').classList.remove('hide');
-  await loadAll();
-  render();
-  initSplash();
+  await showSplashThenRender(loadAll);
 });
 document.getElementById('logoutLink').addEventListener('click', async ()=>{
   await sb.auth.signOut();
@@ -816,9 +815,7 @@ document.getElementById('logoutLink').addEventListener('click', async ()=>{
 (async function init(){
   const { data:{session} } = await sb.auth.getSession();
   if(session){
-    await loadAll();
-    render();
-    initSplash();
+    await showSplashThenRender(loadAll);
   } else {
     document.getElementById('splash').classList.add('hide');
     document.getElementById('loginScreen').classList.remove('hidden');
