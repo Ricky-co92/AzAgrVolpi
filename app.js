@@ -267,6 +267,7 @@ function campoDetail(c){
         <div class="field-wrap"><label>Proprietario / affittuario</label><input type="text" id="campoProprietarioInput" value="${c.proprietaAttuale.proprietario}"></div>
         <div class="field-wrap"><label>Tipo possesso</label><input type="text" id="campoTipoInput" value="${c.proprietaAttuale.tipo}"></div>
         <button class="btn primary small" id="campoSalvaBtn" data-campo="${c.id}" style="align-self:flex-start;">Salva modifiche</button>
+        <button class="btn small" id="campoEliminaBtn" data-campo="${c.id}" style="align-self:flex-start; color:var(--rust); border-color:var(--rust); margin-top:4px;">Elimina campo</button>
         <div>
           <label style="font-size:10.5px; color:var(--ink-soft); font-weight:700; display:block; margin-bottom:6px;">Confine del campo</label>
           <div class="map-toolbar">
@@ -643,6 +644,17 @@ function attachHandlers(){
       proprietario: campo.proprietaAttuale.proprietario,
       tipo_possesso: campo.proprietaAttuale.tipo
     }).eq('id', campo.id));
+  };
+  const campoEliminaBtn = document.querySelector('#campoEliminaBtn');
+  if(campoEliminaBtn) campoEliminaBtn.onclick = ()=>{
+    const id = campoEliminaBtn.dataset.campo;
+    const campo = state.campi.find(c=>c.id===id);
+    if(!confirm(`Eliminare definitivamente il campo "${campo.nome}"? Verranno eliminate anche le sue lavorazioni. L'azione non è reversibile.`)) return;
+    state.campi = state.campi.filter(c=>c.id!==id);
+    state.lavorazioni = state.lavorazioni.filter(l=>l.campoId!==id);
+    closeDetail();
+    render();
+    persist(sb.from('campi').delete().eq('id', id));
   };
   const manualVertexForm = document.querySelector('[data-form="manual-vertex"]');
   if(manualVertexForm) manualVertexForm.onsubmit = (e)=>{
