@@ -262,6 +262,11 @@ function campoDetail(c){
         <div class="field-wrap"><label>Coltura del campo</label>
           <select data-action="set-coltura" data-campo="${c.id}">${selectOptionsHTML(state.opzioni.colture, c.coltura)}</select>
         </div>
+        <div class="field-wrap"><label>Nome campo</label><input type="text" id="campoNomeInput" value="${c.nome}"></div>
+        <div class="field-wrap"><label>Superficie (ha)</label><input type="number" step="0.1" id="campoSuperficieInput" value="${c.superficieHa}"></div>
+        <div class="field-wrap"><label>Proprietario / affittuario</label><input type="text" id="campoProprietarioInput" value="${c.proprietaAttuale.proprietario}"></div>
+        <div class="field-wrap"><label>Tipo possesso</label><input type="text" id="campoTipoInput" value="${c.proprietaAttuale.tipo}"></div>
+        <button class="btn primary small" id="campoSalvaBtn" data-campo="${c.id}" style="align-self:flex-start;">Salva modifiche</button>
         <div>
           <label style="font-size:10.5px; color:var(--ink-soft); font-weight:700; display:block; margin-bottom:6px;">Confine del campo</label>
           <div class="map-toolbar">
@@ -617,6 +622,21 @@ function attachHandlers(){
     const campo = state.campi.find(c=>c.id===colturaSel.dataset.campo);
     campo.coltura = colturaSel.value; render();
     persist(sb.from('campi').update({coltura:campo.coltura}).eq('id', campo.id));
+  };
+  const campoSalvaBtn = document.querySelector('#campoSalvaBtn');
+  if(campoSalvaBtn) campoSalvaBtn.onclick = ()=>{
+    const campo = state.campi.find(c=>c.id===campoSalvaBtn.dataset.campo);
+    campo.nome = document.getElementById('campoNomeInput').value;
+    campo.superficieHa = parseFloat(document.getElementById('campoSuperficieInput').value)||0;
+    campo.proprietaAttuale.proprietario = document.getElementById('campoProprietarioInput').value;
+    campo.proprietaAttuale.tipo = document.getElementById('campoTipoInput').value;
+    render();
+    persist(sb.from('campi').update({
+      nome: campo.nome,
+      superficie_ha: campo.superficieHa,
+      proprietario: campo.proprietaAttuale.proprietario,
+      tipo_possesso: campo.proprietaAttuale.tipo
+    }).eq('id', campo.id));
   };
   const manualVertexForm = document.querySelector('[data-form="manual-vertex"]');
   if(manualVertexForm) manualVertexForm.onsubmit = (e)=>{
