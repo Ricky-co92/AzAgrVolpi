@@ -114,6 +114,7 @@ function render(){
 
 let currentDetail = null;
 let currentLeafletMap = null;
+let editBoundaryMode = false;
 let campoSettingsOpen = false;
 let mezzoSettingsOpen = false;
 let attrSettingsOpen = false;
@@ -264,6 +265,9 @@ function campoDetail(c){
         <div>
           <label style="font-size:10.5px; color:var(--ink-soft); font-weight:700; display:block; margin-bottom:6px;">Confine del campo</label>
           <div class="map-toolbar">
+            <label style="display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; cursor:pointer;">
+              <input type="checkbox" id="editBoundaryToggle" ${editBoundaryMode ? 'checked' : ''}> Modifica confine (click sulla mappa)
+            </label>
             <button class="btn small primary" data-action="gps-add" data-campo="${c.id}">📍 Rileva GPS e aggiungi vertice</button>
             <button class="btn small" data-action="gps-undo" data-campo="${c.id}">Annulla ultimo</button>
             <button class="btn small" data-action="gps-reset" data-campo="${c.id}">Azzera</button>
@@ -347,12 +351,14 @@ function drawMap(campo){
   redraw();
 
   map.on('click', (e)=>{
+    if(!editBoundaryMode) return;
     campo.boundary.push([e.latlng.lat, e.latlng.lng]);
     persist(sb.from('campi').update({boundary: campo.boundary}).eq('id', campo.id));
     render();
   });
 
   currentLeafletMap = map;
+  setTimeout(()=>{ map.invalidateSize(); }, 100);
 }
 
 /* ================= mezzi ================= */
@@ -583,6 +589,9 @@ function attachHandlers(){
 
   const mapCanvas = document.getElementById('mapCanvas');
   if(mapCanvas && currentDetail && currentDetail.type==='campo'){ const campo = state.campi.find(c=>c.id===currentDetail.id); if(campo) drawMap(campo); }
+
+  const editToggle = document.getElementById('editBoundaryToggle');
+  if(editToggle) editToggle.onchange = ()=>{ editBoundaryMode = editToggle.checked; };
 
   const gpsStatus = document.getElementById('gpsStatus');
   const gpsAdd = document.querySelector('[data-action="gps-add"]');
