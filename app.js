@@ -333,10 +333,16 @@ function drawMap(campo){
   if(currentLeafletMap){ currentLeafletMap.remove(); currentLeafletMap = null; }
   const center = (campo.boundary && campo.boundary.length) ? campo.boundary[0] : [45.15, 8.45];
   const map = L.map(container).setView(center, 16);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  const stradale = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+  });
+  const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Tiles &copy; Esri'
+  });
+  satellite.addTo(map);
+  L.control.layers({ 'Satellite': satellite, 'Stradale': stradale }, {}, {position:'topright'}).addTo(map);
 
   function redraw(){
     map.eachLayer(l=>{ if(l instanceof L.Polygon || l instanceof L.CircleMarker) map.removeLayer(l); });
