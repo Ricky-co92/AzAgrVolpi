@@ -27,19 +27,21 @@ const lavFromRow = r => ({id:r.id, campoId:r.campo_id, data:r.data, tipo:r.tipo,
 const manFromRow = r => ({id:r.id, targetType:r.target_type, targetId:r.target_id, data:r.data,
   tipo:r.tipo, ore:r.ore, operatore:r.operatore});
 const scadManFromRow = r => ({id:r.id, titolo:r.titolo, data:r.data, note:r.note});
+const docFromRow = r => ({id:r.id, targetType:r.target_type, targetId:r.target_id, nome:r.nome, url:r.url, data:r.data});
 
 /* ================= stato ================= */
-let state = { opzioni:{tipiLavorazione:[], colture:[], operatori:[]}, campi:[], mezzi:[], attrezzature:[], lavorazioni:[], manutenzioni:[], scadenzeManuali:[] };
+let state = { opzioni:{tipiLavorazione:[], colture:[], operatori:[]}, campi:[], mezzi:[], attrezzature:[], lavorazioni:[], manutenzioni:[], scadenzeManuali:[], documenti:[] };
 
 async function loadAll(){
-  const [opzRes, campiRes, mezziRes, attrRes, lavRes, manRes, scadRes] = await Promise.all([
+  const [opzRes, campiRes, mezziRes, attrRes, lavRes, manRes, scadRes, docRes] = await Promise.all([
     sb.from('opzioni').select('*'),
     sb.from('campi').select('*').order('nome'),
     sb.from('mezzi').select('*').order('nome'),
     sb.from('attrezzature').select('*').order('nome'),
     sb.from('lavorazioni').select('*'),
     sb.from('manutenzioni').select('*'),
-    sb.from('scadenze_manuali').select('*')
+    sb.from('scadenze_manuali').select('*'),
+    sb.from('documenti').select('*')
   ]);
   const opz = {tipiLavorazione:[], colture:[], operatori:[]};
   (opzRes.data||[]).forEach(r=>{ opz[r.key] = r.valori || []; });
@@ -50,7 +52,8 @@ async function loadAll(){
     attrezzature: (attrRes.data||[]).map(attrFromRow),
     lavorazioni: (lavRes.data||[]).map(lavFromRow),
     manutenzioni: (manRes.data||[]).map(manFromRow),
-    scadenzeManuali: (scadRes.data||[]).map(scadManFromRow)
+    scadenzeManuali: (scadRes.data||[]).map(scadManFromRow),
+    documenti: (docRes.data||[]).map(docFromRow)
   };
 }
 
@@ -380,6 +383,13 @@ function mezzoDetail(v){
         <input type="file" accept="image/*" data-action="mezzo-foto" data-mezzo="${v.id}">
         ${v.foto ? `<span style="cursor:pointer; color:var(--rust); font-size:11px; font-weight:700; margin-top:6px; display:inline-block;" data-action="mezzo-foto-remove" data-mezzo="${v.id}">rimuovi foto</span>` : ''}
       </div>
+      <div class="field-block" style="margin-bottom:0;">
+        <h4>Documenti allegati</h4>
+        <div class="opt-list">
+          ${state.documenti.filter(d=>d.targetType==='mezzo' && d.targetId===v.id).map(d=>`<div class="opt-row"><a href="${d.url}" target="_blank">${d.nome}</a><span class="del" data-del-doc="${d.id}">rimuovi</span></div>`).join('') || '<div class="empty-state">Nessun documento.</div>'}
+        </div>
+        <input type="file" data-action="mezzo-doc" data-mezzo="${v.id}">
+      </div>
       <form data-form="mezzo-settings" data-mezzo="${v.id}" style="display:flex; flex-direction:column; gap:10px;">
         <div class="field-wrap"><label>Nome / modello</label><input type="text" name="nome" value="${v.nome}" required></div>
         <div class="field-wrap"><label>Targa</label><input type="text" name="targa" value="${v.targa||''}"></div>
@@ -441,6 +451,13 @@ function attrDetail(a){
       <div class="field-wrap"><label>Foto attrezzatura</label>
         <input type="file" accept="image/*" data-action="attr-foto" data-attr="${a.id}">
         ${a.foto ? `<span style="cursor:pointer; color:var(--rust); font-size:11px; font-weight:700; margin-top:6px; display:inline-block;" data-action="attr-foto-remove" data-attr="${a.id}">rimuovi foto</span>` : ''}
+      </div>
+      <div class="field-block" style="margin-bottom:0;">
+        <h4>Documenti allegati</h4>
+        <div class="opt-list">
+          ${state.documenti.filter(d=>d.targetType==='attrezzatura' && d.targetId===a.id).map(d=>`<div class="opt-row"><a href="${d.url}" target="_blank">${d.nome}</a><span class="del" data-del-doc="${d.id}">rimuovi</span></div>`).join('') || '<div class="empty-state">Nessun documento.</div>'}
+        </div>
+        <input type="file" data-action="attr-doc" data-attr="${a.id}">
       </div>
       <form data-form="attr-settings" data-attr="${a.id}" style="display:flex; flex-direction:column; gap:10px;">
         <div class="field-wrap"><label>Nome</label><input type="text" name="nome" value="${a.nome}" required></div>
@@ -656,6 +673,19 @@ function attachHandlers(){
     v.foto = null; render();
     persist(sb.from('mezzi').update({foto_url:null}).eq('id', v.id));
   };
+  const mezzoDocInput = document.querySelector('[data-action="mezzo-doc"]');
+  if(mezzoDocInput) mezzoDocInput.onchange = async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const v = state.mezzi.find(x=>x.id===mezzoDocInput.dataset.mezzo);
+    const path = `${v.id}-${Date.now()}-${file.name}`;
+    const { error: upErr } = await sb.storage.from('documenti-mezzi').upload(path, file, {upsert:true});
+    if(upErr){ console.error(upErr); return; }
+    const { data: pub } = sb.storage.from('documenti-mezzi').getPublicUrl(path);
+    const doc = {id:uid(), targetType:'mezzo', targetId:v.id, nome:file.name, url:pub.publicUrl, data:todayStr()};
+    state.documenti.push(doc);
+    persist(sb.from('documenti').insert({id:doc.id, target_type:doc.targetType, target_id:doc.targetId, nome:doc.nome, url:doc.url, data:doc.data}));
+    render();
+  };
   const mezzoSettingsForm = document.querySelector('[data-form="mezzo-settings"]');
   if(mezzoSettingsForm) mezzoSettingsForm.onsubmit = (e)=>{
     e.preventDefault();
@@ -696,6 +726,25 @@ function attachHandlers(){
     render();
     persist(sb.from('attrezzature').update({nome:a.nome, tipo:a.tipo, caratteristiche:a.caratteristiche, mezzo_compatibile:a.mezzoCompatibile}).eq('id', a.id));
   };
+  const attrDocInput = document.querySelector('[data-action="attr-doc"]');
+  if(attrDocInput) attrDocInput.onchange = async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const a = state.attrezzature.find(x=>x.id===attrDocInput.dataset.attr);
+    const path = `${a.id}-${Date.now()}-${file.name}`;
+    const { error: upErr } = await sb.storage.from('documenti-attrezzature').upload(path, file, {upsert:true});
+    if(upErr){ console.error(upErr); return; }
+    const { data: pub } = sb.storage.from('documenti-attrezzature').getPublicUrl(path);
+    const doc = {id:uid(), targetType:'attrezzatura', targetId:a.id, nome:file.name, url:pub.publicUrl, data:todayStr()};
+    state.documenti.push(doc);
+    persist(sb.from('documenti').insert({id:doc.id, target_type:doc.targetType, target_id:doc.targetId, nome:doc.nome, url:doc.url, data:doc.data}));
+    render();
+  };
+  document.querySelectorAll('[data-del-doc]').forEach(el=>el.onclick=()=>{
+    const id = el.dataset.delDoc;
+    state.documenti = state.documenti.filter(d=>d.id!==id);
+    render();
+    persist(sb.from('documenti').delete().eq('id', id));
+  });
 
   const scadForm = document.querySelector('[data-form="scadenza-manuale"]');
   if(scadForm) scadForm.onsubmit = (e)=>{

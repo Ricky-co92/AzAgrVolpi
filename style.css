@@ -147,6 +147,8 @@
   .opt-list{display:flex; flex-direction:column; gap:2px; margin-bottom:14px;}
   .opt-row{display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-radius:8px; background:var(--bg); font-size:13px;}
   .opt-row span.del{color:var(--rust); cursor:pointer; font-size:11.5px; font-weight:700;}
+  .opt-row a{color:var(--ink); text-decoration:none; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .opt-row a:hover{color:var(--primary); text-decoration:underline;}
 
   .menu-toggle{display:none; align-items:center; justify-content:center; width:34px; height:34px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); cursor:pointer; margin-right:12px; flex-shrink:0;}
   .rail-backdrop{display:none; position:fixed; inset:0; background:rgba(10,16,11,.45); z-index:60;}
