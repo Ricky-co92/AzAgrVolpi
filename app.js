@@ -738,8 +738,10 @@ function attachHandlers(){
 /* ================= avvio / login ================= */
 function initSplash(){
   const splash = document.getElementById('splash');
+  const logo = splash ? splash.querySelector('.splash-logo') : null;
   if(splash){
-    setTimeout(()=>splash.classList.add('hide'), 1100);
+    if(logo){ logo.classList.remove('grow'); void logo.offsetWidth; logo.classList.add('grow'); }
+    setTimeout(()=>splash.classList.add('hide'), 3000);
     splash.onclick = ()=>splash.classList.add('hide');
   }
 }

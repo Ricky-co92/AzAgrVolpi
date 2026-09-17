@@ -30,7 +30,9 @@
   .watermark img{width:100%; height:100%; object-fit:cover; object-position:center bottom; opacity:.10; -webkit-mask-image:linear-gradient(to top, black 35%, transparent 95%); mask-image:linear-gradient(to top, black 35%, transparent 95%);}
   .topbar, .view{position:relative; z-index:1;}
   .splash{position:fixed; inset:0; background:var(--primary-dark); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; z-index:200; transition:opacity .5s ease, visibility .5s ease; color:#fff; cursor:pointer;}
-  .splash-logo{width:130px; height:130px; object-fit:contain;}
+  .splash-logo{width:170px; height:170px; object-fit:contain;}
+  .splash-logo.grow{animation:splashGrow .9s cubic-bezier(.34,1.56,.64,1) both;}
+  @keyframes splashGrow{0%{transform:scale(.5); opacity:0;} 60%{transform:scale(1.1); opacity:1;} 100%{transform:scale(1); opacity:1;}}
   .splash-title{font-family:'Manrope'; font-weight:800; font-size:17px; letter-spacing:.02em;}
   .splash.hide{opacity:0; visibility:hidden; pointer-events:none;}
   .login-screen{position:fixed; inset:0; background:#FBF3E1; display:flex; align-items:center; justify-content:center; z-index:150; overflow:hidden;}
