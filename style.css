@@ -1,30 +1,30 @@
   :root{
-    --bg:#F7F9F6; --surface:#FFFFFF; --ink:#182016; --ink-soft:#6B7A6E;
-    --line:#E3EAE1; --line-soft:#EEF2EC;
-    --primary:#268A45; --primary-dark:#12291B; --primary-bright:#7ED08A; --primary-tint:#E4F5E7;
-    --amber:#B7791F; --amber-tint:#FDF0DC;
-    --rust:#C0392B; --rust-tint:#FBE4E1;
-    --sky:#2B65C4; --sky-tint:#E4EEFD;
+    --bg:#F7F1E3; --surface:#FFFFFF; --ink:#24301D; --ink-soft:#75805F;
+    --line:#E3D9BE; --line-soft:#EFE7D2;
+    --primary:#4B6B3F; --primary-dark:#2E3F29; --primary-bright:#F2C14E; --primary-tint:#E7EEDD;
+    --amber:#C9843A; --amber-tint:#F6E7CF;
+    --rust:#B5592F; --rust-tint:#F5E0D3;
+    --sky:#3E6E8E; --sky-tint:#DEE9EF;
     --radius:14px; --radius-sm:8px;
   }
   :root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){
-    --bg:#0F1410; --surface:#171D18; --ink:#E7F0E9; --ink-soft:#8CA091;
-    --line:#26302A; --line-soft:#1D251F;
-    --primary:#7ED08A; --primary-dark:#0B1A10; --primary-bright:#7ED08A; --primary-tint:#1B2E1F;
-    --amber:#E3B15E; --amber-tint:#2E2515; --rust:#E08575; --rust-tint:#331B17;
-    --sky:#8FB4E8; --sky-tint:#16222F;
+    --bg:#182418; --surface:#20301F; --ink:#F2EBD9; --ink-soft:#A9B79A;
+    --line:#3A4A34; --line-soft:#2A3A27;
+    --primary:#8FB27A; --primary-dark:#111C12; --primary-bright:#F2C14E; --primary-tint:#2A3A27;
+    --amber:#E3B15E; --amber-tint:#3A2E1A; --rust:#E08566; --rust-tint:#3A2620;
+    --sky:#8FC0DE; --sky-tint:#1E2E36;
   }}
   :root[data-theme="dark"]{
-    --bg:#0F1410; --surface:#171D18; --ink:#E7F0E9; --ink-soft:#8CA091;
-    --line:#26302A; --line-soft:#1D251F;
-    --primary:#7ED08A; --primary-dark:#0B1A10; --primary-bright:#7ED08A; --primary-tint:#1B2E1F;
-    --amber:#E3B15E; --amber-tint:#2E2515; --rust:#E08575; --rust-tint:#331B17;
-    --sky:#8FB4E8; --sky-tint:#16222F;
+    --bg:#182418; --surface:#20301F; --ink:#F2EBD9; --ink-soft:#A9B79A;
+    --line:#3A4A34; --line-soft:#2A3A27;
+    --primary:#8FB27A; --primary-dark:#111C12; --primary-bright:#F2C14E; --primary-tint:#2A3A27;
+    --amber:#E3B15E; --amber-tint:#3A2E1A; --rust:#E08566; --rust-tint:#3A2620;
+    --sky:#8FC0DE; --sky-tint:#1E2E36;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{background:var(--bg); color:var(--ink); font-family:'Manrope',sans-serif; font-size:14px; line-height:1.5; min-height:100vh;}
-  h1,h2,h3{font-family:'Manrope',sans-serif; margin:0; font-weight:800; letter-spacing:-0.01em;}
+  h1,h2,h3{font-family:'Fraunces',serif; margin:0; font-weight:700; letter-spacing:-0.005em;}
   .mono{font-family:'JetBrains Mono',monospace;}
 
   .app{display:flex; min-height:100vh;}
@@ -47,13 +47,16 @@
   .splash-logo{width:130px; height:130px; object-fit:contain;}
   .splash-title{font-family:'Manrope'; font-weight:800; font-size:17px; letter-spacing:.02em;}
   .splash.hide{opacity:0; visibility:hidden; pointer-events:none;}
-  .login-screen{position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:150;}
-  .login-box{background:var(--surface); border:1px solid var(--line-soft); border-radius:18px; padding:32px 30px; width:min(340px,88vw); text-align:center; box-shadow:0 4px 20px rgba(20,40,20,.1);}
+  .login-screen{position:fixed; inset:0; background:#FBF3E1; display:flex; align-items:center; justify-content:center; z-index:150; overflow:hidden;}
+  .login-hills{position:absolute; bottom:0; left:0; width:100%; height:46%; z-index:0;}
+  .login-glow{position:absolute; top:10%; left:50%; transform:translateX(-50%); width:420px; height:420px; background:radial-gradient(circle, rgba(242,193,78,.55) 0%, rgba(242,193,78,0) 70%); z-index:0;}
+  .login-box{background:rgba(255,255,255,.95); border:1px solid var(--line-soft); border-radius:22px; padding:40px 34px 34px; width:min(360px,88vw); text-align:center; box-shadow:0 12px 40px rgba(20,30,15,.18); position:relative; z-index:2;}
   .login-box form{text-align:left;}
+  .login-logo{width:170px; height:170px; object-fit:contain; margin-bottom:6px; filter:drop-shadow(0 6px 14px rgba(0,0,0,.18));}
   .topbar{display:flex; align-items:center; justify-content:space-between; padding:22px 32px 6px;}
   .topbar h2{font-size:23px;}
   .topbar .date{font-size:12.5px; color:var(--ink-soft); font-weight:700;}
-  .view{padding:18px 32px 60px; max-width:1180px;}
+  .view{padding:18px 32px 60px; max-width:1520px;}
   .hidden{display:none !important;}
 
   .ledger{border-top:none;}

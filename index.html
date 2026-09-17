@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Fraunces:ital,wght@0,600;0,700;1,500&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -45,10 +45,16 @@
 </div>
 
 <div id="loginScreen" class="login-screen hidden">
+  <svg class="login-hills" viewBox="0 0 1000 300" preserveAspectRatio="none">
+    <path d="M0,180 C200,100 350,220 550,140 C700,90 850,180 1000,120 L1000,300 L0,300 Z" fill="#9FB582"/>
+    <path d="M0,220 C220,160 400,250 620,190 C780,150 900,230 1000,190 L1000,300 L0,300 Z" fill="#5C7A48"/>
+    <path d="M0,260 C250,230 500,280 750,240 C860,222 950,255 1000,240 L1000,300 L0,300 Z" fill="#2E3F29"/>
+  </svg>
+  <div class="login-glow"></div>
   <div class="login-box">
-    <img src="logo.png" alt="" style="width:64px;height:64px;">
-    <h2 style="margin:14px 0 4px;">Azienda Agricola Volpi</h2>
-    <div style="color:var(--ink-soft);font-size:12.5px;margin-bottom:18px;">Accedi per continuare</div>
+    <img class="login-logo" src="logo.png" alt="Azienda Agricola Volpi">
+    <h2 style="margin:8px 0 3px;">Azienda Agricola Volpi</h2>
+    <div style="color:var(--ink-soft);font-size:12.5px;margin-bottom:18px;font-weight:600;">Accedi per continuare</div>
     <form id="loginForm" class="modal-form">
       <div><label>Email</label><input type="email" name="email" required></div>
       <div><label>Password</label><input type="password" name="password" required></div>
