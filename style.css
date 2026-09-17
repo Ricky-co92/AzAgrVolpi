@@ -26,8 +26,8 @@
   .rail-foot{margin-top:auto; padding-top:14px; font-size:10.5px; color:#5E7D64; border-top:1px solid #223026;}
 
   .main{flex:1; min-width:0; display:flex; flex-direction:column; position:relative;}
-  .watermark{position:fixed; right:-60px; bottom:-60px; width:420px; height:420px; opacity:.07; color:var(--primary); pointer-events:none; z-index:0; border-radius:50%; overflow:hidden;}
-  .watermark img{width:100%; height:100%; object-fit:contain;}
+  .watermark{position:fixed; left:0; right:0; bottom:0; width:100%; height:clamp(200px,30vh,340px); pointer-events:none; z-index:0; overflow:hidden;}
+  .watermark img{width:100%; height:100%; object-fit:cover; object-position:center bottom; opacity:.10; -webkit-mask-image:linear-gradient(to top, black 35%, transparent 95%); mask-image:linear-gradient(to top, black 35%, transparent 95%);}
   .topbar, .view{position:relative; z-index:1;}
   .splash{position:fixed; inset:0; background:var(--primary-dark); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; z-index:200; transition:opacity .5s ease, visibility .5s ease; color:#fff; cursor:pointer;}
   .splash-logo{width:130px; height:130px; object-fit:contain;}
