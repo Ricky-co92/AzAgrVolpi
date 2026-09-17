@@ -42,7 +42,7 @@
   .topbar{display:flex; align-items:center; justify-content:space-between; padding:22px 32px 6px;}
   .topbar h2{font-size:23px;}
   .topbar .date{font-size:12.5px; color:var(--ink-soft); font-weight:700;}
-  .view{padding:30px 32px 70px; max-width:900px; margin:0 auto;}
+  .view{width:100%; max-width:900px; margin:0 auto; padding:30px 32px 70px;}
   .hidden{display:none !important;}
 
   .ledger{border-top:none;}
@@ -94,11 +94,11 @@
   .detail{background:var(--surface); border-radius:var(--radius); border:1px solid var(--line-soft); box-shadow:0 6px 24px rgba(46,63,41,.08); padding:24px 26px;}
   .detail h2{font-size:20px; margin-bottom:2px;}
   .detail .subhead{color:var(--ink-soft); font-size:12.5px; margin-bottom:20px; font-weight:600;}
-  .field-block{margin-bottom:24px;}
+  .field-block{margin-bottom:24px; overflow-x:auto; -webkit-overflow-scrolling:touch;}
   .field-block h4{font-size:11.5px; color:var(--ink-soft); font-weight:800; text-transform:uppercase; letter-spacing:.03em; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--line-soft);}
   .kv{display:grid; grid-template-columns:1fr 1fr; gap:10px 20px; font-size:13px;}
   .kv div span{display:block; color:var(--ink-soft); font-size:11px; font-weight:700; margin-bottom:2px;}
-  table.data{width:100%; border-collapse:collapse; font-size:12.8px;}
+  table.data{width:100%; border-collapse:collapse; font-size:12.8px; min-width:560px;}
   table.data th{text-align:left; font-weight:800; color:var(--ink-soft); font-size:11px; text-transform:uppercase; letter-spacing:.02em; padding:8px 10px 10px; border-bottom:1px solid var(--line);}
   table.data td{padding:9px 10px; border-bottom:1px solid var(--line-soft);}
   table.data tr:last-child td{border-bottom:none;}
