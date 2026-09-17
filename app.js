@@ -788,13 +788,21 @@ function attachHandlers(){
 async function showSplashThenRender(loadFn){
   const splash = document.getElementById('splash');
   const logo = splash.querySelector('.splash-logo');
+
+  // mostra lo splash SUBITO, senza transizione (niente flash della pagina sotto)
+  splash.style.transition = 'none';
   splash.classList.remove('hide');
+  void splash.offsetWidth;
+  splash.style.transition = '';
+
   logo.classList.remove('grow');
   requestAnimationFrame(()=>{ logo.classList.add('grow'); });
+
   const minWait = new Promise(res=>setTimeout(res, 3000));
   await Promise.all([ loadFn(), minWait ]);
+
   render();
-  splash.classList.add('hide');
+  splash.classList.add('hide'); // qui la dissolvenza in uscita resta (definita in CSS su .splash)
 }
 
 document.getElementById('loginForm').addEventListener('submit', async (e)=>{
