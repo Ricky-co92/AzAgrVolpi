@@ -20,7 +20,6 @@ const todayStr = () => new Date().toISOString().slice(0,10);
 const fmtDate = d => d ? new Date(d).toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'}) : '&mdash;';
 const daysUntil = d => { if(!d) return null; return Math.ceil((new Date(d) - new Date(todayStr()))/86400000); };
 function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
-function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
 /* ================= mapping righe Supabase <-> oggetti app ================= */
 const campoFromRow = r => ({id:r.id, nome:r.nome, coltura:r.coltura, superficieHa:r.superficie_ha,
@@ -114,11 +113,13 @@ function render(){
 }
 
 let currentDetail = null;
+let currentLeafletMap = null;
 let campoSettingsOpen = false;
 let mezzoSettingsOpen = false;
 let attrSettingsOpen = false;
 function openDetail(type, id){ currentDetail = {type, id}; campoSettingsOpen = false; mezzoSettingsOpen = false; attrSettingsOpen = false; buildDetailModal(); }
 function closeDetail(){
+  if(currentLeafletMap){ currentLeafletMap.remove(); currentLeafletMap = null; }
   currentDetail = null;
   campoSettingsOpen = false; mezzoSettingsOpen = false; attrSettingsOpen = false;
   const back = document.getElementById('detailModalBack');
@@ -275,7 +276,7 @@ function campoDetail(c){
           <div class="map-status" id="gpsStatus" style="margin-top:8px;">${hasBoundary ? (areaFromBoundary(c.boundary)/10000).toFixed(2)+' ha rilevati' : 'nessun rilievo'}</div>
         </div>
       </div>
-      <div class="map-wrap"><canvas id="mapCanvas" width="640" height="260"></canvas></div>
+      <div class="map-wrap"><div id="mapCanvas" style="height:340px; border-radius:var(--radius-sm);"></div></div>
       <div class="map-note">Rilievo del perimetro reale via GPS del dispositivo, camminando i confini del campo (o inserimento manuale dalle impostazioni &#9881;).</div>
     </div>
 
@@ -307,19 +308,7 @@ function campoDetail(c){
   </div>`;
 }
 
-/* ---- geometria: proiezione locale equirettangolare + area shoelace ---- */
-function projectPoints(boundary, w, h, pad=24){
-  const lats = boundary.map(p=>p[0]), lngs = boundary.map(p=>p[1]);
-  const lat0 = (Math.min(...lats)+Math.max(...lats))/2;
-  const R = 6371000;
-  const toXY = ([lat,lng]) => [ (lng)*Math.PI/180*R*Math.cos(lat0*Math.PI/180), (lat)*Math.PI/180*R ];
-  const pts = boundary.map(toXY);
-  const xs = pts.map(p=>p[0]), ys = pts.map(p=>p[1]);
-  const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
-  const spanX = Math.max(maxX-minX, 1), spanY = Math.max(maxY-minY, 1);
-  const scale = Math.min((w-2*pad)/spanX, (h-2*pad)/spanY);
-  return pts.map(([x,y])=>[ pad + (x-minX)*scale, h - pad - (y-minY)*scale ]);
-}
+/* ---- geometria: area shoelace ---- */
 function areaFromBoundary(boundary){
   if(!boundary || boundary.length<3) return 0;
   const lat0 = boundary.reduce((s,p)=>s+p[0],0)/boundary.length;
@@ -330,33 +319,40 @@ function areaFromBoundary(boundary){
   return Math.abs(a/2);
 }
 function drawMap(campo){
-  const canvas = document.getElementById('mapCanvas');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.strokeStyle = cssVar('--line-soft'); ctx.lineWidth = 1;
-  for(let x=0;x<canvas.width;x+=32){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
-  for(let y=0;y<canvas.height;y+=32){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+  const container = document.getElementById('mapCanvas');
+  if(!container) return;
+  if(currentLeafletMap){ currentLeafletMap.remove(); currentLeafletMap = null; }
+  const center = (campo.boundary && campo.boundary.length) ? campo.boundary[0] : [45.15, 8.45];
+  const map = L.map(container).setView(center, 16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
-  if(campo.boundary && campo.boundary.length>=2){
-    const pts = projectPoints(campo.boundary, canvas.width, canvas.height);
-    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
-    pts.slice(1).forEach(p=>ctx.lineTo(p[0],p[1]));
-    if(campo.boundary.length>=3) ctx.closePath();
-    ctx.fillStyle = cssVar('--primary-tint'); ctx.strokeStyle = cssVar('--primary'); ctx.lineWidth = 2.5;
-    if(campo.boundary.length>=3) ctx.fill();
-    ctx.stroke();
-    pts.forEach((p,i)=>{
-      ctx.beginPath(); ctx.arc(p[0],p[1],4,0,Math.PI*2);
-      ctx.fillStyle = cssVar('--primary-dark'); ctx.fill();
-      ctx.fillStyle = cssVar('--ink-soft'); ctx.font='10px JetBrains Mono';
-      ctx.fillText(String(i+1), p[0]+7, p[1]-7);
+  function redraw(){
+    map.eachLayer(l=>{ if(l instanceof L.Polygon || l instanceof L.CircleMarker) map.removeLayer(l); });
+    if(campo.boundary.length>=2){
+      L.polygon(campo.boundary, {color:'#4B6B3F', fillColor:'#E7EEDD', fillOpacity:.5, weight:2.5}).addTo(map);
+    }
+    campo.boundary.forEach((p,i)=>{
+      L.circleMarker(p, {radius:5, color:'#2E3F29', fillColor:'#2E3F29', fillOpacity:1})
+        .bindTooltip(String(i+1)).addTo(map);
     });
+    if(campo.boundary.length>=2){
+      map.fitBounds(L.polygon(campo.boundary).getBounds(), {padding:[24,24]});
+    } else if(campo.boundary.length===1){
+      map.setView(campo.boundary[0], 17);
+    }
   }
-  ctx.strokeStyle = cssVar('--ink-soft'); ctx.fillStyle = cssVar('--ink-soft'); ctx.lineWidth=1.2;
-  const nx = canvas.width-30, ny=30;
-  ctx.beginPath(); ctx.moveTo(nx,ny+14); ctx.lineTo(nx,ny-14); ctx.moveTo(nx-5,ny-7); ctx.lineTo(nx,ny-14); ctx.lineTo(nx+5,ny-7); ctx.stroke();
-  ctx.font='10px Manrope'; ctx.fillText('N', nx-3, ny-18);
+  redraw();
+
+  map.on('click', (e)=>{
+    campo.boundary.push([e.latlng.lat, e.latlng.lng]);
+    persist(sb.from('campi').update({boundary: campo.boundary}).eq('id', campo.id));
+    render();
+  });
+
+  currentLeafletMap = map;
 }
 
 /* ================= mezzi ================= */
