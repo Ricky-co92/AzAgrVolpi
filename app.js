@@ -256,7 +256,7 @@ function campoDetail(c){
     <div class="field-block">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line-soft); padding-bottom:8px; margin-bottom:10px;">
         <h4 style="border-bottom:none; padding-bottom:0; margin-bottom:0;">Mappa del campo</h4>
-        <button class="btn-icon" data-action="toggle-campo-settings" title="Impostazioni campo">&#9881;</button>
+        <button class="btn-icon ${campoSettingsOpen ? 'active' : ''}" data-action="toggle-campo-settings" title="Impostazioni campo">&#9881;</button>
       </div>
       <div class="campo-settings ${campoSettingsOpen ? 'show' : ''}" id="campoSettingsPanel">
         <div class="field-wrap"><label>Coltura del campo</label>
@@ -381,6 +381,7 @@ function renderMezzi(){
     ${state.mezzi.map(v=>{
       const nextDeadline = Math.min(...Object.values(v.scadenze).filter(Boolean).map(d=>daysUntil(d)));
       return `<div class="item-card" data-open-mezzo="${v.id}">
+        ${v.foto ? `<img src="${v.foto}" style="width:100%; height:110px; object-fit:cover; border-radius:var(--radius-sm); margin-bottom:10px;">` : ''}
         <div class="title">${v.nome}</div>
         <div class="sub">${v.targa||''}</div>
         ${stampFor(isFinite(nextDeadline)?nextDeadline:null)}
@@ -391,11 +392,11 @@ function renderMezzi(){
 function mezzoDetail(v){
   const manutenzioniMezzo = state.manutenzioni.filter(m=>m.targetType==='mezzo' && m.targetId===v.id);
   return `
-  ${v.foto ? `<img src="${v.foto}" style="width:100%; max-height:230px; object-fit:cover; display:block;">` : ''}
+  ${v.foto ? `<img src="${v.foto}" style="width:100%; max-height:280px; object-fit:contain; display:block; background:var(--line-soft);">` : ''}
   <div class="detail">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <h2>${v.nome}</h2>
-      <button class="btn-icon" data-action="toggle-mezzo-settings" title="Impostazioni mezzo">&#9881;</button>
+      <button class="btn-icon ${mezzoSettingsOpen ? 'active' : ''}" data-action="toggle-mezzo-settings" title="Impostazioni mezzo">&#9881;</button>
     </div>
     <div class="subhead">Targa ${v.targa||''} &middot; immatricolato ${v.anno||''}</div>
 
@@ -451,6 +452,7 @@ function renderAttrezzature(){
   <div class="page-head"><h3>Elenco attrezzature</h3><button class="btn small primary" data-action="new-attr">+ Nuovo</button></div>
   <div class="item-grid">
     ${state.attrezzature.map(x=>`<div class="item-card" data-open-attr="${x.id}">
+      ${x.foto ? `<img src="${x.foto}" style="width:100%; height:110px; object-fit:cover; border-radius:var(--radius-sm); margin-bottom:10px;">` : ''}
       <div class="title">${x.nome}</div>
       <div class="sub">${x.tipo||''}</div>
     </div>`).join('') || '<div class="empty-state">Nessuna attrezzatura. Aggiungine una.</div>'}
@@ -460,11 +462,11 @@ function attrDetail(a){
   const manutenzioniAttr = state.manutenzioni.filter(m=>m.targetType==='attrezzatura' && m.targetId===a.id);
   const utilizziAttr = state.lavorazioni.filter(l=>l.attrezzoId===a.id);
   return `
-  ${a.foto ? `<img src="${a.foto}" style="width:100%; max-height:230px; object-fit:cover; display:block;">` : ''}
+  ${a.foto ? `<img src="${a.foto}" style="width:100%; max-height:280px; object-fit:contain; display:block; background:var(--line-soft);">` : ''}
   <div class="detail">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <h2>${a.nome}</h2>
-      <button class="btn-icon" data-action="toggle-attr-settings" title="Impostazioni attrezzatura">&#9881;</button>
+      <button class="btn-icon ${attrSettingsOpen ? 'active' : ''}" data-action="toggle-attr-settings" title="Impostazioni attrezzatura">&#9881;</button>
     </div>
     <div class="subhead">${a.tipo||''}</div>
 
